@@ -1,39 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-
-const initializeBoard = () => {
-  let boardArray = [];
-  for (let row = 1; row < 9; row++) {// 1 to 8
-    let pieceColor;
-    let isKing;
-    if (row === 2 || row === 3) {
-      pieceColor = "black";
-      isKing = false
-    }
-    if (row === 6 || row === 7) {
-      pieceColor = "white";
-      isKing = false
-    }
-    for (let col = 1; col < 9; col++) {// 1 to 8
-      let squareColor;
-
-      if ((row + col) % 2 === 0) {
-        squareColor = "black";
-      } else {
-        squareColor = "white";
-      }
-      boardArray.push({
-        location: {
-          row,
-          col,
-        },
-        squareColor,
-        pieceColor,
-        isKing,
-      });
-    }
-  }
-  return boardArray;
-};
+import { createSlice, current } from "@reduxjs/toolkit";
+import { initializeBoard, movement, checkKingStatus, changeTurn, completeMovement} from '../utils/utils'
 
 export const gameSlice = createSlice({
   name: "game",
@@ -67,136 +33,22 @@ export const gameSlice = createSlice({
         square.location.row === state.selectedPiece.location.row && square.location.col === state.selectedPiece.location.col
       )
 
-      /*if (state.turn === 'White' ) {
-        state.turn = 'Black'
-      }
-      else {
-        state.turn = 'White'
-      }*/
+      const {targetOpponent, blacks, whites} = movement(targetSquare, oldSquare, current(state))
 
-      if (targetSquare.location.row === oldSquare.location.row) {//same row
-        if (targetSquare.location.col - oldSquare.location.col > 0 
-          && Math.abs(targetSquare.location.col - oldSquare.location.col) > 1) {//is the move to the right
-          const capturedOpponent = state.board.find(square => 
-            square.location.col === (targetSquare.location.col-1) && square.location.row === targetSquare.location.row)
-            if (capturedOpponent.pieceColor === 'black') {
-              state.blackPieces--;
-            }
-            else if (capturedOpponent.pieceColor === 'white') {
-              state.whitePieces--;
-            }
-            else {
-              if (state.turn === 'White' ) {
-                state.turn = 'Black'
-              }
-              else {
-                state.turn = 'White'
-              }
-            }
-          capturedOpponent.pieceColor = undefined
-        }
-        else if (targetSquare.location.col - oldSquare.location.col < 0 
-          && Math.abs(targetSquare.location.col - oldSquare.location.col) > 1) {//is the move to the left
-          const capturedOpponent = state.board.find(square => 
-            square.location.col === (targetSquare.location.col+1) && square.location.row === targetSquare.location.row)
-            if (capturedOpponent.pieceColor === 'black') {
-              state.blackPieces--;
-            }
-            else if (capturedOpponent.pieceColor === 'white') {
-              state.whitePieces--;
-            }
-            else {
-              if (state.turn === 'White' ) {
-                state.turn = 'Black'
-              }
-              else {
-                state.turn = 'White'
-              }
-            }
-          capturedOpponent.pieceColor = undefined
-        }
-        else {
-          if (state.turn === 'White' ) {
-            state.turn = 'Black'
-          }
-          else {
-            state.turn = 'White'
-          }
-        }
-      }
-      else if (targetSquare.location.col === oldSquare.location.col) {
-        if (targetSquare.location.row - oldSquare.location.row > 0
-          && Math.abs(targetSquare.location.row - oldSquare.location.row) > 1) {//is the move to the downwards
-          const capturedOpponent = state.board.find(square => 
-            square.location.row === (targetSquare.location.row-1) && square.location.col === targetSquare.location.col)
-            if (capturedOpponent.pieceColor === 'black') {
-              state.blackPieces--;
-            }
-            else if (capturedOpponent.pieceColor === 'white') {
-              state.whitePieces--;
-            }
-            else {
-              if (state.turn === 'White' ) {
-                state.turn = 'Black'
-              }
-              else {
-                state.turn = 'White'
-              }
-            }
-          capturedOpponent.pieceColor = undefined
-        }
-        else if (targetSquare.location.row - oldSquare.location.row < 0 
-          && Math.abs(targetSquare.location.row - oldSquare.location.row) > 1) {//is the move to the upwards
-          const capturedOpponent = state.board.find(square => 
-            square.location.row === (targetSquare.location.row+1) && square.location.col === targetSquare.location.col)
-            if (capturedOpponent.pieceColor === 'black') {
-              state.blackPieces--;
-            }
-            else if (capturedOpponent.pieceColor === 'white') {
-              state.whitePieces--;
-            }
-            else {
-              if (state.turn === 'White' ) {
-                state.turn = 'Black'
-              }
-              else {
-                state.turn = 'White'
-              }
-            }
-          capturedOpponent.pieceColor = undefined
-        }
-        else {
-          if (state.turn === 'White' ) {
-            state.turn = 'Black'
-          }
-          else {
-            state.turn = 'White'
-          }
-        }
-      }
-      
+      state.blackPieces = blacks
+      state.whitePieces = whites
 
-      if (oldSquare.pieceColor === 'white') {
-        if (oldSquare.isKing || targetSquare.location.row === 1) {
-          targetSquare.isKing = true
-        }
-        else{
-          targetSquare.isKing = oldSquare.isKing
-        }
+      if (targetOpponent) {
+        const capturedOpponent = state.board.find(square =>
+          square.location.row === targetOpponent.location.row
+          && square.location.col === targetOpponent.location.col
+        )
+        capturedOpponent.pieceColor = undefined
       }
-      else {
-        if (oldSquare.isKing || targetSquare.location.row === 8) {
-          targetSquare.isKing = true
-        }
-        else{
-          targetSquare.isKing = oldSquare.isKing
-        }
-      }
-      
-      targetSquare.pieceColor = oldSquare.pieceColor
-      oldSquare.pieceColor = undefined
-      oldSquare.isKing = false
-      
+
+      state.turn = changeTurn(current(state), targetOpponent)
+      checkKingStatus(targetSquare, oldSquare, current(state))
+      completeMovement(targetSquare, oldSquare)
       state.availableMoves = [];
     },
     fetchKingMoves: (state, action) => {
