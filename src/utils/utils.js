@@ -126,3 +126,208 @@ export const checkKingStatus = (targetSquare, oldSquare) => {
     }
   }
 };
+
+
+export const upwardsIteration = (upwardsSquares, pieceColor, state) => {
+  let upwardsAvailable = state.availableMoves
+
+  for (let i = upwardsSquares.length - 1; i >= 0; i--) {
+    //if there is an allied piece
+    if (upwardsSquares[i].pieceColor === pieceColor) {
+      break;
+    }
+    //if there is an opponent piece
+    else if (upwardsSquares[i].pieceColor && i > 0) {
+      //check if this piece has another piece next to it in the same column
+      if (!upwardsSquares[i - 1].pieceColor) {
+        upwardsAvailable.push(upwardsSquares[i - 1]);
+      }
+      break;
+    }
+    //empty squares
+    else if (!upwardsSquares[i].pieceColor) {
+      upwardsAvailable.push(upwardsSquares[i]);
+    }
+  }
+
+  return upwardsAvailable
+}
+
+export const downwardsIteration = (downwardsSquares, pieceColor, state) => {
+  let downwardsAvailable = state.availableMoves
+
+  for (let i = 0; i < downwardsSquares.length; i++) {
+    //if there is an allied piece
+    if (downwardsSquares[i].pieceColor === pieceColor) {
+      break;
+    }
+    //if there is an opponent piece
+    else if (downwardsSquares[i].pieceColor && i < downwardsSquares.length-1) {
+      //check if this piece has another piece next to it in the same column
+      if (!downwardsSquares[i + 1].pieceColor) {
+        downwardsAvailable.push(downwardsSquares[i + 1]);
+      }
+      break;
+    }
+    //empty squares
+    else if (!downwardsSquares[i].pieceColor) {
+      downwardsAvailable.push(downwardsSquares[i]);
+    }
+  }
+
+  return downwardsAvailable
+}
+
+export const rightIteration = (rightSideSquares, pieceColor, state) => {
+  let rightAvailable = state.availableMoves
+
+  for (let i = 0; i < rightSideSquares.length; i++) {
+    //if there is an allied piece
+    if (rightSideSquares[i].pieceColor === pieceColor) {
+      break;
+    }
+    //if there is an opponent piece
+    else if (rightSideSquares[i].pieceColor && i < rightSideSquares.length-1) {
+      //check if this piece has another piece next to it in the same column
+      if (!rightSideSquares[i + 1].pieceColor) {
+        rightAvailable.push(rightSideSquares[i + 1]);
+      }
+      break;
+    }
+    //empty squares
+    else if (!rightSideSquares[i].pieceColor) {
+      rightAvailable.push(rightSideSquares[i]);
+    }
+  }
+
+  return rightAvailable
+}
+
+export const leftIteration = (leftSideSquares, pieceColor, state) => {
+  let leftAvailable = state.availableMoves
+
+  for (let i = leftSideSquares.length - 1; i >= 0; i--) {
+    //if there is an allied piece
+    if (leftSideSquares[i].pieceColor === pieceColor) {
+      break;
+    }
+    //if there is an opponent piece
+    else if (leftSideSquares[i].pieceColor && i > 0) {
+      //check if this piece has another piece next to it in the same column
+      if (!leftSideSquares[i - 1].pieceColor) {
+        state.availableMoves.push(leftSideSquares[i - 1]);
+      }
+      break;
+    }
+    //empty squares
+    else if (!leftSideSquares[i].pieceColor) {
+      state.availableMoves.push(leftSideSquares[i]);
+    }
+  }
+
+  return leftAvailable
+}
+
+export const loopForMoves = (possibleRows, possibleColumns, location, pieceColor, state) => {
+  let moves = state.availableMoves
+  for (let i = 0; i < possibleColumns.length; i++) {
+    //0 to 6
+    if (pieceColor === "white") {
+      //find one square ahead
+      if (possibleColumns[i].location.row === location.row - 1) {
+        //check if the square is empty or filled by an opponent piece
+        if (!possibleColumns[i].pieceColor) {
+          moves.push(possibleColumns[i]);
+        } 
+        else if (possibleColumns[i].pieceColor !== pieceColor) {
+          //check if there is a square behind the opponent piece
+          if (i > 0) {
+            //check the square behind the opponent piece
+            if (!possibleColumns[i - 1].pieceColor) {
+              moves.push(possibleColumns[i - 1]);
+            }
+          }
+        }
+      }
+      //check left side columns
+      if (possibleRows[i].location.col === location.col - 1) {
+        //check if the square is empty or filled by an opponent piece
+        if (!possibleRows[i].pieceColor) {
+          moves.push(possibleRows[i]);
+        } else if (possibleRows[i].pieceColor !== pieceColor) {
+          //check if there is a square behind the opponent piece
+          if (i > 0) {
+            //check the square behind the opponent piece
+            if (!possibleRows[i - 1].pieceColor) {
+              moves.push(possibleRows[i - 1]);
+            }
+          }
+        }
+      }
+      //check right side columns
+      if (possibleRows[i].location.col === location.col + 1) {
+        //check if the square is empty or filled by an opponent piece
+        if (!possibleRows[i].pieceColor) {
+          moves.push(possibleRows[i]);
+        } else if (possibleRows[i].pieceColor !== pieceColor) {
+          //check if there is a square behind the opponent piece
+          if (i < 6) {
+            //check the square behind the opponent piece
+            if (!possibleRows[i + 1].pieceColor) {
+              moves.push(possibleRows[i + 1]);
+            }
+          }
+        }
+      }
+    }
+    //black piece
+    else {
+      //find one square ahead
+      if (possibleColumns[i].location.row === location.row + 1) {
+        //check if the square is empty or filled by an opponent piece
+        if (!possibleColumns[i].pieceColor) {
+          moves.push(possibleColumns[i]);
+        } else if (possibleColumns[i].pieceColor !== pieceColor) {
+          //check if there is a square behind the opponent piece
+          if (i < 6) {
+            //check the square behind the opponent piece
+            if (!possibleColumns[i + 1].pieceColor) {
+              moves.push(possibleColumns[i + 1]);
+            }
+          }
+        }
+      }
+      //check left side columns
+      if (possibleRows[i].location.col === location.col - 1) {
+        //check if the square is empty or filled by an opponent piece
+        if (!possibleRows[i].pieceColor) {
+          moves.push(possibleRows[i]);
+        } else if (possibleRows[i].pieceColor !== pieceColor) {
+          //check if there is a square behind the opponent piece
+          if (i > 0) {
+            //check the square behind the opponent piece
+            if (!possibleRows[i - 1].pieceColor) {
+              moves.push(possibleRows[i - 1]);
+            }
+          }
+        }
+      }
+      //check right side columns
+      if (possibleRows[i].location.col === location.col + 1) {
+        //check if the square is empty or filled by an opponent piece
+        if (!possibleRows[i].pieceColor) {
+          moves.push(possibleRows[i]);
+        } else if (possibleRows[i].pieceColor !== pieceColor) {
+          //check if there is a square behind the opponent piece
+          if (i < 6) {
+            //check the square behind the opponent piece
+            if (!possibleRows[i + 1].pieceColor) {
+              moves.push(possibleRows[i + 1]);
+            }
+          }
+        }
+      }
+    }
+  }
+  return moves
+}
