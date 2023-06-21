@@ -10,8 +10,8 @@ function App() {
   return (
     <>
       {(blacks === 0 || whites === 0) && <EndGame />}
-      <Information />
       <div className="container">
+        <Information />
         <Board />
       </div>
     </>
