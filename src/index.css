@@ -176,3 +176,18 @@ p, h1, h2, h3, h4, h5, h6 {
     width: 100%;
   }
 }
+
+@media (max-width: 520px) {
+  .container {
+    margin: 0;
+  }
+  .square {
+    height: 50px;
+  }
+  .info {
+    width: 100%;
+    background-color: blueviolet;
+    padding: 30px;
+    border-radius: 5px;
+  }
+}
